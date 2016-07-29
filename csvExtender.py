@@ -1,4 +1,4 @@
-import re 
+import re
 import csv
 from nltk.corpus import wordnet
 import nltk
@@ -54,22 +54,35 @@ def getNeg (dep, noun, index):
 #classifying verbs
 verbtag = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
 
+def getSubj(dep, noun, index):
+	nsubj = re.findall(r'nsubj\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	nsubj += re.findall(r'nsubjpass\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	return nsubj
+
+def getDObj(dep, noun, index):
+	dobj = re.findall(r'dobj\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	return dobj
+
+def getOfObj(dep, noun, index):
+	ofObj = re.findall(r'nmod\:of\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	return ofObj
+
+def getIObj(dep, noun, index):
+	iobj = re.findall(r'iobj\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	return iobj
+
 #looks at tagged sentence to get the verb the noun refers to
 def getVerb(tagged, dep, noun, index):
 	nsubj = re.findall(r'nsubj\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	nsubj += re.findall(r'nsubj\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	nsubjpass = re.findall(r'nsubjpass\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	nsubjpass += re.findall(r'nsubjpass\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
+	
 	dobj = re.findall(r'dobj\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	dobj += re.findall(r'dobj\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
+
 	iobj = re.findall(r'iobj\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	iobj += re.findall(r'iobj\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
+
 	comp = re.findall(r'compound\((\w*)-([0-9]*), %s-%d\)' % (noun, index), dep)
-	comp += re.findall(r'compound(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	xcomp = re.findall(r'xcomp\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	xcomp += re.findall(r'xcomp\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	ccomp = re.findall(r'ccomp\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	ccomp += re.findall(r'ccomp\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	#handles cases where noun is the subject of the verb
 	if len(nsubj) >= 1:
 		stype = getTag(tagged, nsubj[0])
@@ -80,7 +93,7 @@ def getVerb(tagged, dep, noun, index):
 				vtag = getTag(tagged, verb[0])
 			else:
 				verb = ['']
-				vtag = ''		
+				vtag = ''
 		#handles the gerund case, in which the parser returns the gerund of the vp rather than the base verb
 		elif stype == 'VBG':
 			verb = re.findall(r'aux\(%s-[0-9]*, (\w*)-[0-9]*\)' % nsubj[0], dep)
@@ -116,14 +129,25 @@ def getVerb(tagged, dep, noun, index):
 		vtag = getTag(tagged, ccomp[0])
 		neg = re.findall(r'neg\(%s-[0-9]*, (\w*)-[0-9]*\)' % ccomp[0], dep)
 		return ccomp[0], vtag, 'object', neg
-	#handles compound case where noun modifies another noun (that is either the subject or object of the verb)
-	elif len(comp) >= 1:
-		verbtup = getVerb(tagged, dep, comp[0][0], int(comp[0][1]))
-		return verbtup[0], verbtup[1], verbtup[2], verbtup[3] 
 	else:
 		return '', '', '', ''
+	#handles compound case where noun modifies another noun (that is either the subject or object of the verb)
+	'''
+	elif len(comp) >= 1:
+		print comp
+		split = comp[0].split(',')
+		print split
+		split = split[0].split('(')
+		print split
+		split = split[0].split('-')
+		print split
+		if split[0] != noun:
+			verbtup = getVerb(tagged, dep, split[0], int(split[0]))
+		return verbtup[0], verbtup[1], verbtup[2], verbtup[3]
+	'''
+	
 
-#determines whether the noun is included in a prep phrase, then returns a tuple of the position in the phrase(modifier vs. modified) with the rest of the phrase		
+#determines whether the noun is included in a prep phrase, then returns a tuple of the position in the phrase(modifier vs. modified) with the rest of the phrase
 def getPrepOfN(dep, noun, index):
 	nmod = re.findall(r'nmod\:(\w*)\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
 	modn = re.findall(r'nmod\:(\w*)\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
@@ -141,7 +165,7 @@ def getPrepOfN(dep, noun, index):
 			preplist.append(i)
 			preps.append(i[0])
 			subjs.append(i[1])
-			
+    
 	return preplist, preps, subjs, objs
 
 #determines whether there is a determiner for the given noun in a dependency parse, and returns the determiner(s)
@@ -149,12 +173,16 @@ def getDetOfN(dep, noun, index):
 	det = re.findall(r'det\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
 	return det
 
-#determines whether the noun is compounded with another word, then returns the word it's compounded to 
+def getMarkofN(dep, noun, index):
+	mark = re.findall(r'mark\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	return mark
+
+#determines whether the noun is compounded with another word, then returns the word it's compounded to
 def getCompOfN(dep, noun, index):
 	compright = re.findall(r'compound\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
 	compleft = re.findall(r'compound\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
 	comp = compleft + compright
-	return comp 
+	return comp
 
 #determines whether the noun occurs in a list of other nouns, then returns a list of tuples of the other noun(s) and conjunction(s)
 def getConjOfN(dep, noun, index):
@@ -294,14 +322,19 @@ def returnNounTests(sentence, lemma, nountup):
 	case = getCaseOfN(dep, noun, index)
 	adv = getAdvOfN(dep, noun, index)
 	appos = getApposOfN(dep, noun, index)
-	dens = getDenOfN(dets, adjs, num, adv) 
+	dens = getDenOfN(dets, adjs, num, adv)
 	den = dens[0]
 	dentype = dens[1]
 	pluN = isPluralN(noun, lemma, nountag)
 	pluV = isPluralV(verbtag)
+	nsubj = getSubj(dep, noun, index)
+	dobj = getDObj(dep, noun, index)
+	iobj = getIObj(dep, noun, index)
+	ofObj = getOfObj(dep, noun, index)
+	mark = getMarkofN(dep, noun, index)
 	#passedT = allanTests(dentype, dets, pluN, pluV)
 	#countable = isCountable(passedT)
-	return [noun, index, dep, sfrag, nountag, neg, verbref, verbtag, verbrel, verbneg, prepphrs, preps, prepsubjs, prepobjs, dets, conjs, comps, adjs, possd, possv, num, case, adv, appos, den, dentype, pluN, pluV]
+	return [noun, index, dep, sfrag, nountag, neg, verbref, verbtag, verbrel, verbneg, dobj, iobj, ofObj, mark, nsubj, prepphrs, preps, prepsubjs, prepobjs, dets, conjs, comps, adjs, possd, possv, num, case, adv, appos, den, dentype, pluN, pluV]
 
 #takes in a CSV with the sentences, tagged sentences, dependency parses, and lemmas, and writes a new file with extended categorizations for each sentence
 #for files with mixed lemmas, reads the lemmas stored in the csv
@@ -333,7 +366,7 @@ def appendToCSV(infile, outfile, lemma):
 	header = True
 	for row in reader:
 		if header:
-			row.extend(['Noun', 'Index', 'Relevant Dependencies', 'Sentence Fragment', 'Noun Tag', 'Negation', 'Verb Reference', 'Verb Tag', 'Relation to Verb', 'Verb Negation', 'Prepositional Phrases', 'Prepositions', 'Prepositional Subjects', 'Prepositional Objects', 'Determiners', 'Conjunctions', 'Compounds', 'Adjectival Modifiers', 'Possesed (owned by noun)', 'Possesive (owner of noun)', 'Numeric Modifiers', 'Case Modifiers', 'Adverbial Modifiers', 'Appositional Modifiers', 'Denumerator', 'Type of Denumerator', 'Plurality of Noun', 'Plurality of Verb', 'Allan Tests Passed', 'Countability'])
+			row.extend(['Noun', 'Index', 'Relevant Dependencies', 'Sentence Fragment', 'Noun Tag', 'Negation', 'Verb Reference', 'Verb Tag', 'Relation to Verb', 'Verb Negation', 'Direct Object', 'Indirect Object', '"Of" Object', 'Mark', 'Subject', 'Prepositional Phrases', 'Prepositions', 'Prepositional Subjects', 'Prepositional Objects', 'Determiners', 'Conjunctions', 'Compounds', 'Adjectival Modifiers', 'Possesed (owned by noun)', 'Possesive (owner of noun)', 'Numeric Modifiers', 'Case Modifiers', 'Adverbial Modifiers', 'Appositional Modifiers', 'Denumerator', 'Type of Denumerator', 'Plurality of Noun', 'Plurality of Verb'])
 			header = False
 			writer.writerow(row)
 		else:
@@ -344,4 +377,4 @@ def appendToCSV(infile, outfile, lemma):
 				newrow.extend(returnNounTests([row[0], row[1], row[2]], lemma, nounoccs[i]))
 				writer.writerow(newrow)
 
-appendToCSV('singingIn.csv', 'springingOut.csv', 'singing')
+appendToCSV('testingIn.csv', 'testingOut.csv', 'testing')
