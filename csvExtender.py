@@ -57,12 +57,19 @@ verbtag = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
 #looks at tagged sentence to get the verb the noun refers to
 def getVerb(tagged, dep, noun, index):
 	nsubj = re.findall(r'nsubj\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	nsubj += re.findall(r'nsubj\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	nsubjpass = re.findall(r'nsubjpass\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	nsubjpass += re.findall(r'nsubjpass\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	dobj = re.findall(r'dobj\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	dobj += re.findall(r'dobj\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	iobj = re.findall(r'iobj\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	iobj += re.findall(r'iobj\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	comp = re.findall(r'compound\((\w*)-([0-9]*), %s-%d\)' % (noun, index), dep)
+	comp += re.findall(r'compound(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	xcomp = re.findall(r'xcomp\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	xcomp += re.findall(r'xcomp\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	ccomp = re.findall(r'ccomp\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	ccomp += re.findall(r'ccomp\(%s-%d, (\w*)-[0-9]*' % (noun, index), dep)
 	#handles cases where noun is the subject of the verb
 	if len(nsubj) >= 1:
 		stype = getTag(tagged, nsubj[0])
@@ -161,7 +168,6 @@ def getAmodOfN(dep, noun, index):
 	amodright = re.findall(r'amod\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
 	amodleft = re.findall(r'amod\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
 	amod = amodright + amodleft
-	print amodleft
 	return amod
 
 #determines whether there is a possesive pronoun or proper noun for the given noun in a dependency parse, and returns the pronoun(s) or noun(s) that are owned by the noun
@@ -282,7 +288,6 @@ def returnNounTests(sentence, lemma, nountup):
 	conjs = getConjOfN(dep, noun, index)
 	comps = getCompOfN(dep, noun, index)
 	adjs = getAmodOfN(dep, noun, index)
-	print '...' + str(adjs) + sfrag
 	possd = getPossdOfN(dep, noun, index)
 	possv = getPossvOfN(dep, noun, index)
 	num = getNumOfN(extdep, noun, index)
@@ -339,4 +344,4 @@ def appendToCSV(infile, outfile, lemma):
 				newrow.extend(returnNounTests([row[0], row[1], row[2]], lemma, nounoccs[i]))
 				writer.writerow(newrow)
 
-appendToCSV('singingIn.csv', 'swingingOut.csv', 'singing')
+appendToCSV('singingIn.csv', 'springingOut.csv', 'singing')
