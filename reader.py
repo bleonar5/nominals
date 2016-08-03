@@ -33,15 +33,15 @@ def getIndex(noun, tagged):
 	for word in tagged.split():
 		#print word
 		count += 1
-		if word.split('/')[0].lower() == 'singing':
+		if word.split('/')[0].lower() == 'dancing':
 			return count
 		else:
 			pass
 	return -1
 
-with open('singingIn.csv','rb') as f:
+with open('dancingIn.csv','rb') as f:
 	reader = csv.reader(f)
-	ofile = open('singout.csv', 'wb')
+	ofile = open('danceout.csv', 'wb')
 	writer = csv.writer(ofile)
 	deps = {}
 	frags = {}
@@ -52,9 +52,9 @@ with open('singingIn.csv','rb') as f:
 		if header:
 			header = False
 		else:
-			relDeps = getRelDeps(row[2],'singing',getIndex('singing',row[1]))
+			relDeps = getRelDeps(row[2],'dancing',getIndex('dancing',row[1]))
 			#print getIndex('singing',row[1])
-			frag = getSentFrag(row[0],getIndex('singing',row[1]))
+			frag = getSentFrag(row[0],getIndex('dancing',row[1]))
 			#if 'singing/' not in row[1]:
 			for dep in relDeps.split(' '):
 				if '(' in dep:
