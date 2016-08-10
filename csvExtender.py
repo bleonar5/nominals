@@ -81,7 +81,7 @@ def getIObj(dep, noun, index):
 #looks at tagged sentence to get the verb the noun refers to
 def getVerb(tagged, dep, noun, index):
 	nsubj = re.findall(r'nsubj\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	nsubjpass = re.findall(r'nsubjpass\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	nsubj += re.findall(r'nsubjpass\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
 	
 	dobj = re.findall(r'dobj\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
 
