@@ -115,10 +115,6 @@ def getVerb(tagged, dep, noun, index):
 			vtag = stype
 		neg = re.findall(r'neg\(%s-[0-9]*, (\w*)-[0-9]*\)' % verb[0], dep)
 		return verb[0], vtag , 'subject', neg
-	elif len(nsubjpass) >=1:
-		vtag = getTag(tagged, nsubjpass[0])
-		neg = re.findall(r'neg\(%s-[0-9]*, (\w*)-[0-9]*\)' % nsubjpass[0], dep)
-		return nsubjpass[0], vtag, 'subject', neg
 	#handles cases where noun is the object of the verb
 	elif len(dobj) >= 1:
 		vtag = getTag(tagged, dobj[0])
@@ -156,17 +152,19 @@ def getVerb(tagged, dep, noun, index):
 
 #determines whether the noun is included in a prep phrase, then returns a tuple of the position in the phrase(modifier vs. modified) with the rest of the phrase
 def getPrepOfN(dep, noun, index):
-	nmod = re.findall(r'nmod\:(\w*)\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	#nmod = re.findall(r'nmod\:(\w*)\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
 	modn = re.findall(r'nmod\:(\w*)\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
 	preps = []
 	objs = []
 	subjs = []
 	preplist = []
+	'''
 	for i in nmod:
 		if i[0] != 'poss':
 			preplist.append(i)
 			preps.append(i[0])
 			objs.append(i[1])
+	'''
 	for i in modn:
 		if i[0] != 'poss':
 			preplist.append(i)
@@ -174,6 +172,7 @@ def getPrepOfN(dep, noun, index):
 			subjs.append(i[1])
     
 	return preplist, preps, subjs, objs
+
 
 #determines whether there is a determiner for the given noun in a dependency parse, and returns the determiner(s)
 def getDetOfN(dep, noun, index):
@@ -200,9 +199,9 @@ def getConjOfN(dep, noun, index):
 
 #determines whether there is an adjectival modifier for the given noun in a dependency parse, and returns the adjective(s)
 def getAmodOfN(dep, noun, index):
-	amodright = re.findall(r'amod\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	#amodright = re.findall(r'amod\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
 	amodleft = re.findall(r'amod\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	amod = amodright + amodleft
+	amod = amodleft
 	return amod
 
 #determines whether there is a possesive pronoun or proper noun for the given noun in a dependency parse, and returns the pronoun(s) or noun(s) that are owned by the noun
@@ -314,9 +313,12 @@ def returnNounTests(sentence, lemma, nountup):
 	verbtag = verbtup[1]
 	verbrel = verbtup[2]
 	verbneg = verbtup[3]
+	mark = getMarkofN(dep, noun, index)
 	preptup = getPrepOfN(dep, noun, index)
 	prepphrs = preptup[0]
 	preps = preptup[1]
+	if preps == '[]':
+		preps += mark
 	prepsubjs = preptup[2]
 	prepobjs = preptup[3]
 	dets = getDetOfN(dep, noun, index)
@@ -338,7 +340,6 @@ def returnNounTests(sentence, lemma, nountup):
 	dobj = getDObj(dep, noun, index)
 	iobj = getIObj(dep, noun, index)
 	ofObj = getOfObj(dep, noun, index)
-	mark = getMarkofN(dep, noun, index)
 	sub = getisSubj(dep, noun, index)
 	ob = getisObj(dep,noun,index)
 	#passedT = allanTests(dentype, dets, pluN, pluV)
@@ -386,4 +387,4 @@ def appendToCSV(infile, outfile, lemma):
 				newrow.extend(returnNounTests([row[0], row[1], row[2]], lemma, nounoccs[i]))
 				writer.writerow(newrow)
 
-appendToCSV('testingIn.csv', 'testingOut.csv', 'testing')
+appendToCSV('spendingIn.csv', 'spendingOut.csv', 'spending')
