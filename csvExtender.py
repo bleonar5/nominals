@@ -392,4 +392,4 @@ def appendToCSV(infile, outfile, lemma):
 				newrow.extend(returnNounTests([row[0], row[1], row[2]], lemma, nounoccs[i]))
 				writer.writerow(newrow)
 
-appendToCSV('testingIn.csv', 'testingOut5.csv', 'testing')
+appendToCSV('washingIn.csv', 'washingOut.csv', 'washing')
