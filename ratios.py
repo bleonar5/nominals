@@ -214,7 +214,7 @@ def tableMaker(ifile,ofile):
 
 
 
-tableMaker('spendingOut.csv', 'spendingTable.csv')
+tableMaker('testingOut5.csv', 'testingTable.csv')
 #print getOneWay('testingOut.csv', 27)
 
 	
