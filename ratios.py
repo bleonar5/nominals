@@ -187,7 +187,7 @@ def tableMaker(ifile,ofile):
 	reader = list(csv.reader(csvifile))[1:]
 	csvofile = open(ofile, 'w')
 	writer = csv.writer(csvofile)
-	nums = [(24,'compound'),(36,'subject'),(37,"object"),(25,"adjectival modifier")]
+	nums = [(24,'compound'),(36,'subject'),(37,"object"),(25,"adjectival modifier"),(30,"Adverbial Modifier")]
 	'''
 	header = True
 	i = j = 0
