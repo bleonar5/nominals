@@ -184,8 +184,8 @@ def getMarkofN(dep, noun, index):
 #determines whether the noun is compounded with another word, then returns the word it's compounded to
 def getCompOfN(dep, noun, index):
 	compright = re.findall(r'compound\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
-	compleft = re.findall(r'compound\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	comp = compleft + compright
+	#compleft = re.findall(r'compound\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	comp =compright
 	return comp
 
 #determines whether the noun occurs in a list of other nouns, then returns a list of tuples of the other noun(s) and conjunction(s)
@@ -197,9 +197,9 @@ def getConjOfN(dep, noun, index):
 
 #determines whether there is an adjectival modifier for the given noun in a dependency parse, and returns the adjective(s)
 def getAmodOfN(dep, noun, index):
-	#amodright = re.findall(r'amod\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
-	amodleft = re.findall(r'amod\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
-	amod = amodleft
+	amodright = re.findall(r'amod\(%s-%d, (\w*)-[0-9]*\)' % (noun, index), dep)
+	#amodleft = re.findall(r'amod\((\w*)-[0-9]*, %s-%d\)' % (noun, index), dep)
+	amod = amodright
 	return amod
 
 #determines whether there is a possesive pronoun or proper noun for the given noun in a dependency parse, and returns the pronoun(s) or noun(s) that are owned by the noun
@@ -320,9 +320,6 @@ def returnNounTests(sentence, lemma, nountup):
 	preptup = getPrepOfN(dep, noun, index)
 	prepphrs = preptup[0]
 	preps = preptup[1]
-	preps += mark
-	if len(preps) > 1:
-		preps = preps[0]
 	prepsubjs = preptup[2]
 	prepobjs = preptup[3]
 	dets = getDetOfN(dep, noun, index)
@@ -349,7 +346,7 @@ def returnNounTests(sentence, lemma, nountup):
 	advcl = getadvclOfN(dep,noun,index)
 	#passedT = allanTests(dentype, dets, pluN, pluV)
 	#countable = isCountable(passedT)
-	return [noun, index, dep, sfrag, nountag, neg, verbref, verbtag, verbrel, verbneg, dobj, iobj, ofObj, mark, nsubj, prepphrs, preps, prepsubjs, prepobjs, dets, conjs, comps, adjs, possd, possv, num, case, adv, appos, den, dentype, pluN, pluV, sub, ob, advcl]
+	return [noun, index, dep, sfrag, nountag, neg, verbref, verbtag, verbrel, verbneg, dobj, iobj, ofObj, mark, nsubj, prepphrs, preps, prepsubjs, prepobjs, dets, conjs, comps, adjs, possd, possv, num, case, adv, appos, den, dentype, pluN, pluV, sub, ob]
 
 #takes in a CSV with the sentences, tagged sentences, dependency parses, and lemmas, and writes a new file with extended categorizations for each sentence
 #for files with mixed lemmas, reads the lemmas stored in the csv
@@ -381,7 +378,7 @@ def appendToCSV(infile, outfile, lemma):
 	header = True
 	for row in reader:
 		if header:
-			row.extend(['Noun', 'Index', 'Relevant Dependencies', 'Sentence Fragment', 'Noun Tag', 'Negation', 'Verb Reference', 'Verb Tag', 'Relation to Verb', 'Verb Negation', 'Direct Object', 'Indirect Object', '"Of" Object', 'Mark', 'Subject', 'Prepositional Phrases', 'Prepositions', 'Prepositional Subjects', 'Prepositional Objects', 'Determiners', 'Conjunctions', 'Compounds', 'Adjectival Modifiers', 'Possesed (owned by noun)', 'Possesive (owner of noun)', 'Numeric Modifiers', 'Case Modifiers', 'Adverbial Modifiers', 'Appositional Modifiers', 'Denumerator', 'Type of Denumerator', 'Plurality of Noun', 'Plurality of Verb', 'subject', 'object','advcl'])
+			row.extend(['Noun', 'Index', 'Relevant Dependencies', 'Sentence Fragment', 'Noun Tag', 'Negation', 'Verb Reference', 'Verb Tag', 'Relation to Verb', 'Verb Negation', 'Direct Object', 'Indirect Object', '"Of" Object', 'Adverbial Preposition', 'Subject', 'Prepositional Phrases', 'Prepositions', 'Prepositional Subjects', 'Prepositional Objects', 'Determiners', 'Conjunctions', 'Compounds', 'Adjectival Modifiers', 'Possesed (owned by noun)', 'Possesive (owner of noun)', 'Numeric Modifiers', 'Case Modifiers', 'Adverbial Modifiers', 'Appositional Modifiers', 'Denumerator', 'Type of Denumerator', 'Plurality of Noun', 'Plurality of Verb', 'subject', 'object','advcl'])
 			header = False
 			writer.writerow(row)
 		else:
@@ -392,4 +389,4 @@ def appendToCSV(infile, outfile, lemma):
 				newrow.extend(returnNounTests([row[0], row[1], row[2]], lemma, nounoccs[i]))
 				writer.writerow(newrow)
 
-appendToCSV('washingIn.csv', 'washingOut.csv', 'washing')
+appendToCSV('testingIn.csv', 'testingOut.csv', 'testing')
