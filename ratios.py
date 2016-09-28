@@ -182,11 +182,13 @@ colIndices = []
 rowIndices = [24,]
 vpNegs = [15,22,27]
 rowsList= []
-def tableMaker(ifile,ofile):
+def tableMaker(ifile,ofile,ofile2):
 	csvifile = open(ifile, 'rU')
 	reader = list(csv.reader(csvifile))[1:]
 	csvofile = open(ofile, 'w')
+	csvofile2 = open(ofile2, 'w')
 	writer = csv.writer(csvofile)
+	writer2 = csv.writer(csvofile2)
 	nums = [(24,'compound'),(36,'subject'),(37,"object"),(25,"adjectival modifier"),(30,"Adverbial Modifier")]
 	'''
 	header = True
@@ -207,6 +209,7 @@ def tableMaker(ifile,ofile):
 
 	#print(reader)
 	writer.writerow(['','VP-ing','of-ing','DET-ing','DET-of-ing','Poss-ing','Poss-of-ing','Total'])
+	writer2.writerow(['','VP-ing','of-ing','DET-ing','DET-of-ing','Poss-ing','Poss-of-ing'])
 	total = 0
 	'''
 	for index, name in nums:
@@ -221,22 +224,26 @@ def tableMaker(ifile,ofile):
 	writer.writerow(["Total",len(vpingGrabber(reader))/float(len(reader)),len(ofingGrabber(reader))/float(len(reader)),len(detingGrabber(reader))/float(len(reader)),len(detofingGrabber(reader))/float(len(reader)),len(possingGrabber(reader))/float(len(reader)),len(possofingGrabber(reader))/float(len(reader)),total])
 	'''
 	for index, name in nums:
+
 		numer = indexGrabber(reader,index)
 		writer.writerow([name,len(vpingGrabber(numer))/float(len(numer)),len(ofingGrabber(numer))/float(len(numer)),len(detingGrabber(numer))/float(len(numer)),len(detofingGrabber(numer))/float(len(numer)),len(possingGrabber(numer))/float(len(numer)),len(possofingGrabber(numer))/float(len(numer)),len(numer)/float(len(reader))])
+		writer2.writerow([name, len(indexGrabber(vpingGrabber(reader),index))/float(len(vpingGrabber(reader))),len(indexGrabber(ofingGrabber(reader),index))/float(len(ofingGrabber(reader))),len(indexGrabber(detingGrabber(reader),index))/float(len(detingGrabber(reader))),len(indexGrabber(detofingGrabber(reader),index))/float(len(detofingGrabber(reader))),len(indexGrabber(possingGrabber(reader),index))/float(len(possingGrabber(reader))),len(indexGrabber(possofingGrabber(reader),index))/float(len(possofingGrabber(reader)))])
 		total += getRatio(reader,index)
 	for prep in getPreps(reader,19):
 		numer = prepGrabber(reader,prep,19)
 		writer.writerow([prep,len(vpingGrabber(numer))/float(len(numer)),len(ofingGrabber(numer))/float(len(numer)),len(detingGrabber(numer))/float(len(numer)),len(detofingGrabber(numer))/float(len(numer)),len(possingGrabber(numer))/float(len(numer)),len(possofingGrabber(numer))/float(len(numer)),len(numer)/float(len(reader))])
+		writer2.writerow([prep, len(prepGrabber(vpingGrabber(reader),prep,19))/float(len(vpingGrabber(reader))),len(prepGrabber(ofingGrabber(reader),prep,19))/float(len(ofingGrabber(reader))),len(prepGrabber(detingGrabber(reader),prep,19))/float(len(detingGrabber(reader))),len(prepGrabber(detofingGrabber(reader),prep,19))/float(len(detofingGrabber(reader))),len(prepGrabber(possingGrabber(reader),prep,19))/float(len(possingGrabber(reader))),len(prepGrabber(possofingGrabber(reader),prep,19))/float(len(possofingGrabber(reader)))])
 	for prep in getPreps(reader,16):
 		numer = prepGrabber(reader,prep,16)
 		writer.writerow([prep + ' -adv',len(vpingGrabber(numer))/float(len(numer)),len(ofingGrabber(numer))/float(len(numer)),len(detingGrabber(numer))/float(len(numer)),len(detofingGrabber(numer))/float(len(numer)),len(possingGrabber(numer))/float(len(numer)),len(possofingGrabber(numer))/float(len(numer)),len(numer)/float(len(reader))])
+		writer2.writerow([prep + ' -adv', len(prepGrabber(vpingGrabber(reader),prep,16))/float(len(vpingGrabber(reader))),len(prepGrabber(ofingGrabber(reader),prep,16))/float(len(ofingGrabber(reader))),len(prepGrabber(detingGrabber(reader),prep,16))/float(len(detingGrabber(reader))),len(prepGrabber(detofingGrabber(reader),prep,16))/float(len(detofingGrabber(reader))),len(prepGrabber(possingGrabber(reader),prep,16))/float(len(possingGrabber(reader))),len(prepGrabber(possofingGrabber(reader),prep,16))/float(len(possofingGrabber(reader)))])
 
-
+	writer2.writerow(['Total',len(vpingGrabber(reader))/float(len(reader)),len(ofingGrabber(reader))/float(len(reader)),len(detingGrabber(reader))/float(len(reader)),len(detofingGrabber(reader))/float(len(reader)),len(possingGrabber(reader))/float(len(reader)),len(possofingGrabber(reader))/float(len(reader))])
 	#writer.writerow([str(getNeg(reader,vpNegs)),str(getOneWay(reader,22,[15])),str(getPos(reader,[15,22])),str(getOneWay(reader,27,[13,15])),str(getPos(reader, [27,13])),str(getPos(reader, [27,15])),'0' ])
 
 
 
-tableMaker('testingOut.csv', 'testingTable.csv')
+tableMaker('movingOut.csv', 'movingTable.csv','movingTable.csv')
 #print getOneWay('testingOut.csv', 27)
 
 	
